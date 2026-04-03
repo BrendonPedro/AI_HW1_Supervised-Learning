@@ -47,6 +47,7 @@ def scrape_menu_photos(
 
     for o in offsets:
         print(f"Starting from offset={o}")
+        # Step 1: list restaurants from Google Maps search.
         rest_params = {
             "engine": "google_maps",
             "q": query,
@@ -68,6 +69,7 @@ def scrape_menu_photos(
 
         for restaurant_title, data_id in rest_data:
             print(f"Scraping menus from: {restaurant_title}")
+            # Step 2: fetch menu-related photos for this restaurant.
             menu_params = {
                 "engine": "google_maps_photos",
                 "data_id": data_id,

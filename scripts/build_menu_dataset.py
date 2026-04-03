@@ -40,6 +40,8 @@ def extract_rows_from_json(data: Dict[str, Any], source_file: str) -> List[Dict[
     """
     rows: List[Dict[str, str]] = []
 
+    # Document AI exports categories and items in a single sequence.
+    # We keep the latest seen category so subsequent item rows inherit it.
     current_category_original = ""
     current_category_english = ""
 
@@ -99,6 +101,7 @@ def build_dataset(input_dir: str, output_csv: str) -> None:
     input_path = Path(input_dir)
     all_rows: List[Dict[str, str]] = []
 
+    # Deterministic ordering keeps row generation stable across runs.
     for json_file in sorted(input_path.rglob("*.json")):
         try:
             with json_file.open("r", encoding="utf-8") as f:

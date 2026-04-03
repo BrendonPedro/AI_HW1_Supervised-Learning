@@ -176,6 +176,7 @@ def evaluate_model(
     name: str, model: Pipeline, X: pd.Series, y: pd.Series
 ) -> tuple[dict[str, float], pd.DataFrame, np.ndarray, list[str]]:
     """Cross-validated evaluation; print metrics and return rows + confusion matrix."""
+    # Use fixed splits so scores are comparable across runs/config changes.
     cv = StratifiedKFold(n_splits=5, shuffle=True, random_state=42)
 
     scoring = {
@@ -184,6 +185,8 @@ def evaluate_model(
         "f1_weighted": "f1_weighted",
     }
 
+    # `cross_validate` gives fold-wise scalar metrics; `cross_val_predict` gives
+    # pooled out-of-fold predictions used for class-wise report and confusion matrix.
     scores = cross_validate(model, X, y, cv=cv, scoring=scoring)
     y_pred = cross_val_predict(model, X, y, cv=cv)
 
@@ -312,6 +315,7 @@ def main() -> None:
     )
     args = p.parse_args()
 
+    # Data loading + label standardization happen before model evaluation.
     report_dir = resolve_report_dir(args.report_dir)
     print(f"Report directory: {report_dir}  (run suffix: {args.run})")
 
@@ -328,6 +332,7 @@ def main() -> None:
     dist = df["category_standardized"].value_counts()
     print(dist)
 
+    # Shared feature extractor; classifier is swapped per model.
     models = {
         "Logistic Regression": Pipeline([
             ("tfidf", TfidfVectorizer(analyzer="char_wb", ngram_range=(2, 4), min_df=1)),
